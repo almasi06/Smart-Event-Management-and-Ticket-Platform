@@ -1,25 +1,22 @@
 {
-  "name": "smart-event-management-and-ticket-platform",
+  "name": "smart-event-management-platform",
   "version": "1.0.0",
-  "description": "This project is a full‑stack web application built with Node.js, Express, EJS, and MongoDB, designed to simulate a real‑world event booking platform. The system follows the MVC architecture, integrates MongoDB via Mongoose to deliver a secure, responsive, and user‑friendly experience.",
-  "main": "server.js",
+  "description": "Smart Event Management & Ticketing Platform",
+  "main": "app.js",
   "scripts": {
-    "test": "echo \"Error: no test specified\" && exit 1",
-    "start": "node server.js"
+    "start": "node app.js",
+    "dev": "nodemon app.js"
   },
-  "repository": {
-    "type": "git",
-    "url": "git+https://github.com/almasi06/Smart-Event-Management-and-Ticket-Platform.git"
-  },
-  "keywords": [],
-  "author": "",
-  "license": "ISC",
-  "bugs": {
-    "url": "https://github.com/almasi06/Smart-Event-Management-and-Ticket-Platform/issues"
-  },
-  "homepage": "https://github.com/almasi06/Smart-Event-Management-and-Ticket-Platform#readme",
   "dependencies": {
-    "ejs": "^5.0.2",
-    "express": "^5.2.1"
+    "bcrypt": "^5.1.1",
+    "dotenv": "^16.4.5",
+    "ejs": "^3.1.10",
+    "express": "^4.19.2",
+    "express-session": "^1.18.0",
+    "method-override": "^3.0.0",
+    "mongoose": "^8.4.0"
+  },
+  "devDependencies": {
+    "nodemon": "^3.1.4"
   }
 }
