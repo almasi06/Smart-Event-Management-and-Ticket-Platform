@@ -15,7 +15,7 @@ const getDashboard = async (req, res) => {
     }
 
     // Regular user sees their booking history
-    const bookings = await Booking.findByUser(req.session.userId);
+    const bookings = await Booking.findByUser(req.session.user._id);
     res.render('dashboard', { user, bookings, analytics: null });
   } catch (err) {
     res.status(500).render('error', { message: err.message });
@@ -38,7 +38,7 @@ const createBooking = async (req, res) => {
     }
 
     const booking = await Booking.create({
-      user:       req.session.userId,
+      user:       req.session.user._id,
       event:      eventId,
       quantity:   qty,
       totalPrice: event.ticketPrice * qty,

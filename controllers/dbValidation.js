@@ -28,7 +28,7 @@ const validateBookingCapacity = async (req, res, next) => {
       return res.status(400).render('error', { message: 'Invalid event ID.' });
     }
 
-    const Event = require('./Event');
+    const Event = require('../models/Event');
     const event = await Event.findById(eventId);
 
     if (!event)           return res.status(404).render('error', { message: 'Event not found.' });
