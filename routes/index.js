@@ -20,7 +20,7 @@ const { getContact, createEnquiry, updateEnquiryStatus } =
 router.get('/auth', getAuth);
 router.post('/register', register);
 router.post('/login', login);
-router.post('/logout', logout);
+router.get('/logout', logout);
 
 // ─── Home / Event Listing (index.ejs) ────────────────────────────────────────
 router.get('/', getEvents);
