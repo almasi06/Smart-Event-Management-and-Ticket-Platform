@@ -26,7 +26,12 @@ app.use(session({
   secret:            process.env.SESSION_SECRET || 'ae-secret-change-in-production',
   resave:            false,
   saveUninitialized: false,
-  cookie:            { secure: false, maxAge: 1000 * 60 * 60 * 24 },
+  cookie:            { 
+    secure: process.env.NODE_ENV === 'production',
+    httpOnly: true,
+    sameSite: 'lax', // Mitigates CSRF vulnerabilities
+    maxAge: 1000 * 60 * 60 * 24 
+  },
 }));
 
 // ===== CRITICAL FIX: Make user available to ALL views =====

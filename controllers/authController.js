@@ -19,7 +19,7 @@ const getAuth = (req, res) => {
 // authentication.ejs form fields: name, email, password, role
 const register = async (req, res) => {
   try {
-    const { name, email, password, role } = req.body;
+    const { name, email, password } = req.body;
 
     const exists = await User.findOne({ email: email.toLowerCase().trim() });
     if (exists) {
@@ -27,10 +27,8 @@ const register = async (req, res) => {
       return res.redirect('/auth');
     }
 
-    // Only allow 'user' or 'admin' — default to 'user' for safety
-    const safeRole = role === 'admin' ? 'admin' : 'user';
-
-    await User.create({ name, email, password, role: safeRole });
+    // CRITICAL SECURITY FIX: Force 'user' role for public registration.
+    await User.create({ name, email, password, role: 'user' });
 
     req.session.success = 'Account created successfully! Please log in.';
     res.redirect('/auth');
