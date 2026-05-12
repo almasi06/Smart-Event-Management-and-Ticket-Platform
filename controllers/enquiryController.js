@@ -1,73 +1,90 @@
-
-
 const Enquiry = require('../models/Enquiry');
-
-// ─── GET /contact ──────────────────────────────────────────────────────────────
 const getContact = async (req, res) => {
   try {
     const user = req.session.user || null;
     let enquiries = [];
+    let userEnquiries = [];
 
-    // Only admins see the enquiry table
-    if (user && user.role === 'admin') {
-      enquiries = await Enquiry.find({})
-        .populate('user', 'name email')
-        .sort({ createdAt: -1 });
+    if (user) {
+      if (user.role === 'admin') {
+        
+        enquiries = await Enquiry.find({})
+          .populate('user', 'name email')
+          .populate('resolvedBy', 'name')
+          .sort({ createdAt: -1 });
+      } else {
+      
+        userEnquiries = await Enquiry.find({ user: user._id })
+          .sort({ createdAt: -1 });
+      }
     }
 
     res.render('contact', {
       user,
       enquiries,
+      userEnquiries,
       success: req.session.success || null,
       error:   req.session.error   || null,
     });
+    
+    
     delete req.session.success;
     delete req.session.error;
   } catch (err) {
+    console.error('GetContact error:', err);
     res.status(500).render('error', { message: err.message });
   }
 };
 
-// ─── POST /enquiries — Submit Enquiry ─────────────────────────────────────────
-// contact.ejs form fields: name, email, subject, message
+
 const createEnquiry = async (req, res) => {
   try {
-    const { name, email, subject, message } = req.body;
+    const { name, email, subject, message, phone } = req.body;
+    const user = req.session.user || null;
 
     await Enquiry.create({
       name,
       email,
       subject,
       message,
+      phone: phone || '',
       status: 'Pending',
-      user:   req.session.userId || null,
+      user: user ? user._id : null,
     });
 
     req.session.success = 'Your enquiry has been submitted. We will get back to you shortly!';
     res.redirect('/contact');
   } catch (err) {
+    console.error('CreateEnquiry error:', err);
     req.session.error = err.message;
     res.redirect('/contact');
   }
 };
 
-// ─── PUT /enquiries/:id — Update Enquiry Status (Admin only) ──────────────────
-// contact.ejs status form sends: { status: 'Pending' | 'Responded' | 'Closed' }
+
 const updateEnquiryStatus = async (req, res) => {
   try {
-    const { status } = req.body;
+    const { status, adminResponse, adminNotes } = req.body;
     const enquiry = await Enquiry.findById(req.params.id);
+    const user = req.session.user;
 
     if (!enquiry) {
       req.session.error = 'Enquiry not found.';
       return res.redirect('/contact');
     }
 
-    await enquiry.updateStatus(status, req.session.userId);
+  
+    await enquiry.updateStatus(
+      status,
+      user ? user._id : null,
+      adminResponse || '',
+      adminNotes || ''
+    );
 
-    req.session.success = 'Enquiry status updated.';
+    req.session.success = `Enquiry updated. ${adminResponse ? 'Response sent to customer.' : ''}`;
     res.redirect('/contact');
   } catch (err) {
+    console.error('UpdateEnquiryStatus error:', err);
     req.session.error = err.message;
     res.redirect('/contact');
   }

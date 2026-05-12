@@ -2,74 +2,122 @@
 
 <h1>Contact Us</h1>
 
+<!-- Customer Enquiry Form -->
 <div class="admin-section">
   <h2>Send Us a Message</h2>
   <form action="/enquiries" method="POST" class="admin-form">
-    <input type="text" name="name" placeholder="Your Full Name" required>
-    <input type="email" name="email" placeholder="Your Email Address" required>
+    <input type="text" name="name" placeholder="Your Full Name" value="<%= user ? user.name : '' %>" required>
+    <input type="email" name="email" placeholder="Your Email Address" value="<%= user ? user.email : '' %>" required>
+    <input type="tel" name="phone" placeholder="Phone Number (optional)">
     <input type="text" name="subject" placeholder="Subject" required>
     <textarea name="message" placeholder="Your Message" rows="5" required></textarea>
     <button type="submit" class="submit-enquiry-btn">Submit Enquiry</button>
   </form>
 </div>
 
+<!-- Success/Error Messages -->
+<% if (success) { %>
+  <div class="success success-message"><%= success %></div>
+<% } %>
+<% if (error) { %>
+  <div class="error error-message"><%= error %></div>
+<% } %>
 
+<!-- ============================================ -->
+<!-- REGULAR USER: View their own enquiries with responses -->
+<!-- ============================================ -->
+<% if (user && user.role === 'user' && userEnquiries && userEnquiries.length > 0) { %>
+  <div class="admin-section">
+    <h2>My Enquiries & Responses</h2>
+    <% userEnquiries.forEach(enquiry => { %>
+      <div class="enquiry-card">
+        <div class="enquiry-header">
+          <strong><%= enquiry.subject %></strong>
+          <span class="status-badge status-<%= enquiry.status.toLowerCase() %>">
+            <%= enquiry.status %>
+          </span>
+          <small><%= new Date(enquiry.createdAt).toLocaleDateString() %></small>
+        </div>
+        <div class="enquiry-message-full">
+          <strong>Your message:</strong>
+          <p><%= enquiry.message %></p>
+        </div>
+        <% if (enquiry.adminResponse) { %>
+          <div class="admin-response">
+            <strong>Admin Response:</strong>
+            <p><%= enquiry.adminResponse %></p>
+            <small>Responded on: <%= new Date(enquiry.respondedAt).toLocaleDateString() %></small>
+          </div>
+        <% } else if (enquiry.status === 'Pending') { %>
+          <div class="waiting-response">
+            <em>⏳ Waiting for admin response...</em>
+          </div>
+        <% } %>
+      </div>
+    <% }) %>
+  </div>
+<% } %>
+
+<!-- ============================================ -->
+<!-- ADMIN: View and Manage All Enquiries with Response Form -->
+<!-- ============================================ -->
 <% if (user && user.role === 'admin') { %>
   <div class="admin-section">
     <h2>Manage User Enquiries</h2>
     
     <% if (enquiries && enquiries.length > 0) { %>
-      <table class="admin-table">
-        <thead>
-          <tr>
-            <th>Date</th>
-            <th>Name</th>
-            <th>Email</th>
-            <th>Subject</th>
-            <th>Message</th>
-            <th>Status</th>
-            <th>Action</th>
-          </tr>
-        </thead>
-        <tbody>
-          <% enquiries.forEach(enquiry => { %>
-            <tr class="enquiry-row">
-              <td><%= new Date(enquiry.createdAt).toLocaleDateString() %></td>
-              <td><%= enquiry.name %></td>
-              <td><%= enquiry.email %></td>
-              <td><%= enquiry.subject %></td>
-              <td class="enquiry-message"><%= enquiry.message %></td>
-              <td class="enquiry-status">
-                <span class="status-badge status-<%= enquiry.status ? enquiry.status.toLowerCase() : 'pending' %>">
-                  <%= enquiry.status || 'Pending' %>
-                </span>
-              </td>
-              <td class="enquiry-action">
-                <form action="/enquiries/<%= enquiry._id %>?_method=PUT" method="POST" class="inline-form status-form">
-                  <select name="status" class="status-select">
-                    <option value="Pending" <%= enquiry.status === 'Pending' ? 'selected' : '' %>>Pending</option>
-                    <option value="Responded" <%= enquiry.status === 'Responded' ? 'selected' : '' %>>Responded</option>
-                    <option value="Closed" <%= enquiry.status === 'Closed' ? 'selected' : '' %>>Closed</option>
-                  </select>
-                  <button type="submit" class="update-btn">Update</button>
-                </form>
-              </td>
-            </tr>
-          <% }) %>
-        </tbody>
-      </table>
+      <% enquiries.forEach(enquiry => { %>
+        <div class="enquiry-card admin-enquiry-card">
+          <div class="enquiry-header">
+            <strong><%= enquiry.name %></strong> 
+            (<a href="mailto:<%= enquiry.email %>"><%= enquiry.email %></a>) - 
+            <%= new Date(enquiry.createdAt).toLocaleDateString() %>
+            <span class="status-badge status-<%= enquiry.status.toLowerCase() %>">
+              <%= enquiry.status %>
+            </span>
+          </div>
+          
+          <div class="enquiry-subject">
+            <strong>Subject:</strong> <%= enquiry.subject %>
+          </div>
+          
+          <div class="enquiry-message-full">
+            <strong>Customer Message:</strong>
+            <p><%= enquiry.message %></p>
+          </div>
+          
+          <!-- Display existing admin response if any -->
+          <% if (enquiry.adminResponse) { %>
+            <div class="admin-response-existing">
+              <strong>Your Response:</strong>
+              <p><%= enquiry.adminResponse %></p>
+              <small>Sent on: <%= new Date(enquiry.respondedAt).toLocaleDateString() %></small>
+            </div>
+          <% } %>
+          
+          <!-- Admin Response Form -->
+          <form action="/enquiries/<%= enquiry._id %>?_method=PUT" method="POST" class="admin-response-form">
+            <label>Response to Customer:</label>
+            <textarea name="adminResponse" rows="3" placeholder="Type your response here... The customer will see this."><%= enquiry.adminResponse || '' %></textarea>
+            
+            <label>Internal Notes (optional):</label>
+            <textarea name="adminNotes" rows="2" placeholder="Private notes for other admins (customer won't see)"><%= enquiry.adminNotes || '' %></textarea>
+            
+            <div class="form-actions">
+              <select name="status" class="status-select">
+                <option value="Pending" <%= enquiry.status === 'Pending' ? 'selected' : '' %>>Pending</option>
+                <option value="Responded" <%= enquiry.status === 'Responded' ? 'selected' : '' %>>Responded</option>
+                <option value="Closed" <%= enquiry.status === 'Closed' ? 'selected' : '' %>>Closed</option>
+              </select>
+              <button type="submit" class="update-btn">Save Response & Update</button>
+            </div>
+          </form>
+        </div>
+      <% }) %>
     <% } else { %>
       <p class="text-center no-data-message">No enquiries submitted yet.</p>
     <% } %>
   </div>
-<% } %>
-
-<% if (success) { %>
-  <div class="success success-message"><%= success %></div>
-<% } %>
-
-<% if (error) { %>
-  <div class="error error-message"><%= error %></div>
 <% } %>
 
 <%- include('partials/footer') %>
