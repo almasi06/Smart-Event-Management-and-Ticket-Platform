@@ -2,7 +2,6 @@
 
 <h1>Contact Us</h1>
 
-<!-- Customer Enquiry Form -->
 <div class="admin-section">
   <h2>Send Us a Message</h2>
   <form action="/enquiries" method="POST" class="admin-form">
@@ -15,7 +14,6 @@
   </form>
 </div>
 
-<!-- Success/Error Messages -->
 <% if (success) { %>
   <div class="success success-message"><%= success %></div>
 <% } %>
@@ -23,9 +21,6 @@
   <div class="error error-message"><%= error %></div>
 <% } %>
 
-<!-- ============================================ -->
-<!-- REGULAR USER: View their own enquiries with responses -->
-<!-- ============================================ -->
 <% if (user && user.role === 'user' && userEnquiries && userEnquiries.length > 0) { %>
   <div class="admin-section">
     <h2>My Enquiries & Responses</h2>
@@ -58,9 +53,6 @@
   </div>
 <% } %>
 
-<!-- ============================================ -->
-<!-- ADMIN: View and Manage All Enquiries with Response Form -->
-<!-- ============================================ -->
 <% if (user && user.role === 'admin') { %>
   <div class="admin-section">
     <h2>Manage User Enquiries</h2>
@@ -86,7 +78,7 @@
             <p><%= enquiry.message %></p>
           </div>
           
-          <!-- Display existing admin response if any -->
+    
           <% if (enquiry.adminResponse) { %>
             <div class="admin-response-existing">
               <strong>Your Response:</strong>
@@ -95,7 +87,7 @@
             </div>
           <% } %>
           
-          <!-- Admin Response Form -->
+        
           <form action="/enquiries/<%= enquiry._id %>?_method=PUT" method="POST" class="admin-response-form">
             <label>Response to Customer:</label>
             <textarea name="adminResponse" rows="3" placeholder="Type your response here... The customer will see this."><%= enquiry.adminResponse || '' %></textarea>
