@@ -19,7 +19,8 @@ A secure, full‑stack web application designed to modernize event booking and t
 - **Mongoose**: ODM library for schema validation and database queries.  
 - **bcrypt**: Password hashing library ensuring secure authentication.  
 - **express-session**: Middleware for session handling and login persistence.   
-- **dotenv**: Manages environment variables securely.  
+- **dotenv**: Manages environment variables securely.
+- **method-override**: Enables PUT and DELETE requests in forms for full CRUD support.
 - **nodemon**: Development tool that auto‑restarts the server on code changes.  
 
 ## End-to-End Workflow (Verified)  
