@@ -58,7 +58,7 @@ A secure, full‑stack web application designed to modernize event booking and t
    ```  
 4. Start the application:  
    ```bash
-   npm start
+   node app.js
    ```  
 
 ---
