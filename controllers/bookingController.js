@@ -3,18 +3,16 @@
 const Booking = require('../models/Booking');
 const Event   = require('../models/Event');
 
-// ─── GET /dashboard ───────────────────────────────────────────────────────────
 const getDashboard = async (req, res) => {
   try {
     const user = req.session.user;
 
     if (user.role === 'admin') {
-      // Admin sees analytics
+    
       const analytics = await Booking.getAdminStats();
       return res.render('dashboard', { user, bookings: [], analytics });
     }
 
-    // Regular user sees their booking history
     const bookings = await Booking.findByUser(req.session.user._id);
     res.render('dashboard', { user, bookings, analytics: null });
   } catch (err) {
@@ -22,8 +20,6 @@ const getDashboard = async (req, res) => {
   }
 };
 
-// ─── POST /book — Create Booking ──────────────────────────────────────────────
-// index.ejs form sends: eventId, quantity
 const createBooking = async (req, res) => {
   try {
     const { eventId, quantity } = req.body;
@@ -49,8 +45,7 @@ const createBooking = async (req, res) => {
         email: req.session.user.email,
       },
     });
-
-    // Increment tickets sold on the event
+    
     await event.incrementSold(qty);
 
     res.redirect('/dashboard');

@@ -1,10 +1,7 @@
-
-
 const User = require('../models/User');
 
-// ─── GET /auth ─────────────────────────────────────────────────────────────────
 const getAuth = (req, res) => {
-  // Pass flash messages (or null) so EJS conditionals don't throw
+  
   res.render('authentication', {
     error:   req.session.error   || null,
     success: req.session.success || null,
@@ -15,8 +12,6 @@ const getAuth = (req, res) => {
   delete req.session.success;
 };
 
-// ─── POST /register ────────────────────────────────────────────────────────────
-// authentication.ejs form fields: name, email, password, role
 const register = async (req, res) => {
   try {
     const { name, email, password } = req.body;
@@ -27,7 +22,6 @@ const register = async (req, res) => {
       return res.redirect('/auth');
     }
 
-    // CRITICAL SECURITY FIX: Force 'user' role for public registration.
     await User.create({ name, email, password, role: 'user' });
 
     req.session.success = 'Account created successfully! Please log in.';
@@ -38,13 +32,10 @@ const register = async (req, res) => {
   }
 };
 
-// ─── POST /login ───────────────────────────────────────────────────────────────
-// authentication.ejs form fields: email, password
 const login = async (req, res) => {
   try {
     const { email, password } = req.body;
 
-    // select('+password') overrides the schema's select:false on password
     const user = await User.findOne({ email: email.toLowerCase().trim() }).select('+password');
 
     if (!user || !(await user.comparePassword(password))) {
@@ -57,7 +48,6 @@ const login = async (req, res) => {
       return res.redirect('/auth');
     }
 
-    // Store safe user object in session (no password)
     req.session.userId = user._id.toString();
     req.session.user = {
       _id:   user._id,
@@ -66,7 +56,6 @@ const login = async (req, res) => {
       role:  user.role,
     };
 
-    // Update last login
     user.lastLogin = new Date();
     await user.save({ validateBeforeSave: false });
 
@@ -77,7 +66,6 @@ const login = async (req, res) => {
   }
 };
 
-// ─── POST /logout ──────────────────────────────────────────────────────────────
 const logout = (req, res) => {
   req.session.destroy(() => {
     res.redirect('/auth');
