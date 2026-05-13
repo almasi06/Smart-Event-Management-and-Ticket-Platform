@@ -56,10 +56,11 @@ A secure, full‑stack web application designed to modernize event booking and t
 3. Run in development mode:  
    ```bash
    npm run dev
-   ```  
+   ```
+   
 4. Start the application:  
    ```bash
    node app.js
    ```  
-
+Repository Link: https://github.com/almasi06/Smart-Event-Management-and-Ticket-Platform.git
 ---
