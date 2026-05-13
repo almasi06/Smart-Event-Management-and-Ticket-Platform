@@ -15,7 +15,7 @@ A secure, full‑stack web application designed to modernize event booking and t
 - **Node.js**: Server‑side JavaScript runtime powering backend logic.  
 - **Express.js**: Web framework for routing, middleware, and server configuration.  
 - **EJS**: Template engine for dynamic server‑side rendering of HTML.  
-- **MongoDB**: NoSQL database for storing events, users, and bookings.  
+- **MongoDB**: Database for storing events, users, and bookings.  
 - **Mongoose**: ODM library for schema validation and database queries.  
 - **bcrypt**: Password hashing library ensuring secure authentication.  
 - **express-session**: Middleware for session handling and login persistence.   
