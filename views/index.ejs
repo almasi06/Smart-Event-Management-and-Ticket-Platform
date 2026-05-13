@@ -31,7 +31,7 @@
       <p>Date: <%= event.date %></p>
       <p>Category: <%= event.category %></p>
       <p>Available Tickets: <%= event.availableTickets %> / <%= event.capacity %></p>
-      <a href="/events/<%= event._id %>">View Details</a>
+      
       
       <% if (user && user.role === 'user' && event.availableTickets > 0) { %>
         <form action="/book" method="POST">
