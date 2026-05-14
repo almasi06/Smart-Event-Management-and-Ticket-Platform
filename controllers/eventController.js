@@ -6,7 +6,6 @@ const getEvents = async (req, res) => {
     const { search, category, date, availability } = req.query;
     const query = { isPublished: true, isCancelled: false };
 
-    // Search: full-text if text index exists, otherwise regex
     if (search && search.trim()) {
       query.$or = [
         { title: { $regex: search.trim(), $options: 'i' } },
@@ -14,12 +13,10 @@ const getEvents = async (req, res) => {
       ];
     }
 
-    // Category filter — index.ejs sends lowercase values: 'conference', etc.
     if (category && category.trim()) {
       query.category = category.toLowerCase().trim();
     }
 
-    // Date filter — match events on or after the selected date
     if (date && date.trim()) {
       const selectedDate = new Date(date);
       const nextDay = new Date(selectedDate);
@@ -29,7 +26,6 @@ const getEvents = async (req, res) => {
 
     let events = await Event.find(query).sort({ date: 1 });
 
-    // Availability filter applied after fetch (uses virtual)
     if (availability === 'available') {
       events = events.filter(e => e.availableTickets > 0);
     } else if (availability === 'soldout') {
@@ -45,9 +41,6 @@ const getEvents = async (req, res) => {
   }
 };
 
-// ─── GET /manage — Event Management Page (Admin only) ─────────────────────────
-// manage.ejs reads: events[].title, .date, .category, .capacity,
-//                   .availableTickets, ._id
 const getManage = async (req, res) => {
   try {
     const events = await Event.find({ isCancelled: false }).sort({ date: 1 });
@@ -60,9 +53,6 @@ const getManage = async (req, res) => {
   }
 };
 
-// ─── POST /events — Create Event ──────────────────────────────────────────────
-// manage.ejs form fields: title, description, date, category, capacity
-// NOTE: ticketPrice not in the form → defaults to 0 in schema
 const createEvent = async (req, res) => {
   try {
     const { title, description, date, category, capacity } = req.body;
@@ -83,16 +73,12 @@ const createEvent = async (req, res) => {
   }
 };
 
-// ─── PUT /events/:id — Update Event ───────────────────────────────────────────
-// manage.ejs update form sends: title, capacity, availableTickets
-// availableTickets is a virtual — we convert back: ticketsSold = capacity - availableTickets
 const updateEvent = async (req, res) => {
   try {
     const { title, capacity, availableTickets } = req.body;
     const cap  = parseInt(capacity);
     const avail = parseInt(availableTickets);
 
-    // Derive ticketsSold from what the admin set as availableTickets
     const ticketsSold = Math.max(0, cap - avail);
 
     await Event.findByIdAndUpdate(
@@ -107,7 +93,6 @@ const updateEvent = async (req, res) => {
   }
 };
 
-// ─── DELETE /events/:id — Delete Event ────────────────────────────────────────
 const deleteEvent = async (req, res) => {
   try {
     await Event.findByIdAndDelete(req.params.id);

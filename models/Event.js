@@ -1,7 +1,5 @@
 const mongoose = require('mongoose');
 
-// ─── Category values must match EXACTLY what the EJS <select> options send ───
-// index.ejs / manage.ejs use: 'conference', 'workshop', 'music festival', 'private'
 const EVENT_CATEGORIES = [
   'conference',
   'workshop',
@@ -68,7 +66,7 @@ const eventSchema = new mongoose.Schema(
       default: 0,
       min: [0, 'Tickets sold cannot be negative'],
     },
-    // manage.ejs create form does NOT include ticketPrice, default to 0
+    
     ticketPrice: {
       type: Number,
       default: 0,
@@ -110,16 +108,11 @@ const eventSchema = new mongoose.Schema(
   }
 );
 
-// ─── Indexes ──────────────────────────────────────────────────────────────────
 eventSchema.index({ date: 1 });
 eventSchema.index({ category: 1 });
 eventSchema.index({ isPublished: 1, isCancelled: 1 });
 eventSchema.index({ title: 'text', description: 'text', tags: 'text' });
 
-// ─── Virtuals ─────────────────────────────────────────────────────────────────
-// index.ejs:  event.availableTickets
-// manage.ejs: event.availableTickets
-// dashboard.ejs: event.ticketsSold / event.capacity
 eventSchema.virtual('availableTickets').get(function () {
   return Math.max(0, this.capacity - this.ticketsSold);
 });
@@ -139,7 +132,6 @@ eventSchema.virtual('bookings', {
   foreignField: 'event',
 });
 
-// ─── Instance Methods ─────────────────────────────────────────────────────────
 eventSchema.methods.hasCapacity = function (quantity = 1) {
   return this.ticketsSold + quantity <= this.capacity;
 };
@@ -157,7 +149,6 @@ eventSchema.methods.decrementSold = async function (quantity = 1) {
   return this.save();
 };
 
-// ─── Static Methods ───────────────────────────────────────────────────────────
 eventSchema.statics.findUpcoming = function () {
   return this.find({
     date: { $gte: new Date() },
@@ -175,7 +166,6 @@ eventSchema.statics.findByCategory = function (category) {
   }).sort({ date: 1 });
 };
 
-// ─── Pre-save: guard ticketsSold overflow ─────────────────────────────────────
 eventSchema.pre('save', function (next) {
   if (this.ticketsSold > this.capacity) {
     return next(new Error('Tickets sold cannot exceed capacity'));

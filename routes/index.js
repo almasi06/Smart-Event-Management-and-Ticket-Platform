@@ -16,16 +16,13 @@ const { getDashboard, createBooking } =
 const { getContact, createEnquiry, updateEnquiryStatus } =
   require('../controllers/enquiryController');
 
-// ─── Authentication (authentication.ejs) ─────────────────────────────────────
 router.get('/auth', getAuth);
 router.post('/register', register);
 router.post('/login', login);
 router.get('/logout', logout);
 
-// ─── Home / Event Listing (index.ejs) ────────────────────────────────────────
 router.get('/', getEvents);
 
-// ─── Event Management (manage.ejs) — Admin only ──────────────────────────────
 router.get('/manage', isLoggedIn, isAdmin, getManage);
 router.post('/events', isLoggedIn, isAdmin, createEvent);
 router.post('/events/:id', isLoggedIn, isAdmin, validateObjectId(), (req, res, next) => {
@@ -35,13 +32,10 @@ router.post('/events/:id', isLoggedIn, isAdmin, validateObjectId(), (req, res, n
   next();
 });
 
-// ─── Dashboard (dashboard.ejs) ────────────────────────────────────────────────
 router.get('/dashboard', isLoggedIn, getDashboard);
 
-// ─── Ticket Booking (triggered from index.ejs) ───────────────────────────────
 router.post('/book', isLoggedIn, validateBookingCapacity, createBooking);
 
-// ─── Contact / Enquiries (contact.ejs) ───────────────────────────────────────
 router.get('/contact', getContact);
 router.post('/enquiries', createEnquiry);
 router.post('/enquiries/:id', isLoggedIn, isAdmin, validateObjectId(), (req, res, next) => {

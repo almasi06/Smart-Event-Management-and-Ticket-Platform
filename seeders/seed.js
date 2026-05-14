@@ -16,7 +16,6 @@ const seed = async () => {
   await Booking.deleteMany({});
   await Enquiry.deleteMany({});
 
-  // ── Users: saved one by one so bcrypt pre-save hook runs ──
   console.log('Seeding users...');
   const admin = await User.create({
     name:     'Admin User',
@@ -52,7 +51,6 @@ const seed = async () => {
 
   console.log('   4 users inserted.');
 
-  // ── Events ────────────────────────────────────────────────
   console.log('Seeding events...');
   const event1 = await Event.create({
     title:       'AfriTech Innovation Summit 2026',
@@ -116,7 +114,6 @@ const seed = async () => {
 
   console.log('   5 events inserted.');
 
-  // ── Bookings ──────────────────────────────────────────────
   console.log('Seeding bookings...');
   await Booking.create({ user: thabo._id,  event: event1._id, quantity: 2, totalPrice: 3000, status: 'confirmed', attendeeDetails: { name: thabo.name,  email: thabo.email  } });
   await Booking.create({ user: lerato._id, event: event2._id, quantity: 1, totalPrice: 850,  status: 'confirmed', attendeeDetails: { name: lerato.name, email: lerato.email } });
@@ -125,7 +122,6 @@ const seed = async () => {
   await Booking.create({ user: lerato._id, event: event1._id, quantity: 1, totalPrice: 1500, status: 'cancelled', cancellationReason: 'Schedule conflict', attendeeDetails: { name: lerato.name, email: lerato.email } });
   console.log('   5 bookings inserted.');
 
-  // ── Enquiries ─────────────────────────────────────────────
   console.log('Seeding enquiries...');
   await Enquiry.create({ user: thabo._id,  event: event1._id, name: thabo.name,  email: thabo.email,  subject: 'Event Information', message: 'Will there be vegetarian meal options at the AfriTech Summit?', status: 'Pending' });
   await Enquiry.create({ user: lerato._id, name: lerato.name, email: lerato.email, subject: 'Refund Request',  message: 'I cancelled my ticket for the jazz festival. When can I expect my refund?', status: 'Responded', adminNotes: 'Refund initiated 2026-05-01' });

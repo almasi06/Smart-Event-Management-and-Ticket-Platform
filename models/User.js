@@ -48,17 +48,15 @@ const userSchema = new mongoose.Schema(
     },
   },
   {
-    timestamps: true, // Adds createdAt and updatedAt
+    timestamps: true, 
   }
 );
 
-// ─── Indexes ────────────────────────────────────────────────────────────────
 userSchema.index({ email: 1 });
 userSchema.index({ role: 1 });
 
-// ─── Pre-save Hook: Hash password before saving ──────────────────────────────
 userSchema.pre('save', async function (next) {
-  // Only hash if password was modified (or is new)
+
   if (!this.isModified('password')) return next();
 
   try {
@@ -69,22 +67,18 @@ userSchema.pre('save', async function (next) {
   }
 });
 
-// ─── Instance Method: Compare password ──────────────────────────────────────
 userSchema.methods.comparePassword = async function (candidatePassword) {
   return bcrypt.compare(candidatePassword, this.password);
 };
 
-// ─── Instance Method: Check if admin ────────────────────────────────────────
 userSchema.methods.isAdmin = function () {
   return this.role === 'admin';
 };
 
-// ─── Static Method: Find active users ────────────────────────────────────────
 userSchema.statics.findActive = function () {
   return this.find({ isActive: true });
 };
 
-// ─── Virtual: Full profile (for display) ────────────────────────────────────
 userSchema.virtual('profileSummary').get(function () {
   return `${this.name} (${this.role})`;
 });

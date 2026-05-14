@@ -4,7 +4,7 @@ const BOOKING_STATUSES = ['pending', 'confirmed', 'cancelled', 'refunded'];
 
 const bookingSchema = new mongoose.Schema(
   {
-    // dashboard.ejs: booking.event.title, booking.event.date, booking.event.category
+ 
     user: {
       type: mongoose.Schema.Types.ObjectId,
       ref: 'User',
@@ -15,7 +15,7 @@ const bookingSchema = new mongoose.Schema(
       ref: 'Event',
       required: [true, 'Booking must be for an event'],
     },
-    // dashboard.ejs: booking.quantity
+    
     quantity: {
       type: Number,
       required: [true, 'Quantity is required'],
@@ -60,19 +60,17 @@ const bookingSchema = new mongoose.Schema(
     cancellationReason: { type: String, trim: true, maxlength: 300 },
   },
   {
-    timestamps: true, // dashboard.ejs: booking.createdAt
+    timestamps: true, 
     toJSON: { virtuals: true },
     toObject: { virtuals: true },
   }
 );
 
-// ─── Indexes ──────────────────────────────────────────────────────────────────
 bookingSchema.index({ user: 1, createdAt: -1 });
 bookingSchema.index({ event: 1 });
 bookingSchema.index({ bookingReference: 1 });
 bookingSchema.index({ status: 1 });
 
-// ─── Pre-save: Generate booking reference ─────────────────────────────────────
 bookingSchema.pre('save', function (next) {
   if (this.isNew && !this.bookingReference) {
     const timestamp = Date.now().toString(36).toUpperCase();
@@ -82,7 +80,6 @@ bookingSchema.pre('save', function (next) {
   next();
 });
 
-// ─── Instance Method: Cancel booking ─────────────────────────────────────────
 bookingSchema.methods.cancel = async function (reason = '') {
   if (this.status === 'cancelled') {
     throw new Error('Booking is already cancelled');
@@ -102,28 +99,18 @@ bookingSchema.methods.cancel = async function (reason = '') {
   return this;
 };
 
-// ─── Static: Bookings by user ─────────────────────────────────────────────────
-// dashboard.ejs accesses: booking.event.title, booking.event.date,
-//                         booking.event.category, booking.quantity, booking.createdAt
 bookingSchema.statics.findByUser = function (userId) {
   return this.find({ user: userId, status: { $ne: 'cancelled' } })
     .populate('event', 'title date category imageUrl ticketPrice')
     .sort({ createdAt: -1 });
 };
 
-// ─── Static: Admin analytics ──────────────────────────────────────────────────
-// dashboard.ejs needs:
-//   analytics.totalBookings        → Number
-//   analytics.capacityPercentage   → Number (0–100)
-//   analytics.totalEvents          → Number
-//   analytics.popularEvents[]      → { title, category, bookingCount, ticketsSold, capacity }
 bookingSchema.statics.getAdminStats = async function () {
   const Event = mongoose.model('Event');
 
   const totalBookings = await this.countDocuments({ status: 'confirmed' });
   const totalEvents   = await Event.countDocuments({ isCancelled: false });
 
-  // Capacity usage: sum of ticketsSold / sum of capacity across all active events
   const capacityAgg = await Event.aggregate([
     { $match: { isCancelled: false } },
     {
@@ -140,8 +127,6 @@ bookingSchema.statics.getAdminStats = async function () {
       ? Math.round((capData.totalSold / capData.totalCapacity) * 100)
       : 0;
 
-  // Popular events — dashboard.ejs reads:
-  //   event.title, event.category, event.bookingCount, event.ticketsSold, event.capacity
   const popularEvents = await this.aggregate([
     { $match: { status: 'confirmed' } },
     {

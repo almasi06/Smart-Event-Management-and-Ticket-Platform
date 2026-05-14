@@ -2,8 +2,6 @@
 
 const mongoose = require('mongoose');
 
-// ─── Auth Guards ──────────────────────────────────────────────────────────────
-
 const isLoggedIn = (req, res, next) => {
   if (req.session && req.session.userId) return next();
   req.session.error = 'Please log in to continue.';
@@ -17,9 +15,6 @@ const isAdmin = (req, res, next) => {
   res.status(403).render('error', { message: 'Access denied. Admins only.' });
 };
 
-// ─── Booking Capacity Validation ──────────────────────────────────────────────
-// Used before POST /book
-// Attaches req.event so the controller doesn't need to re-fetch
 const validateBookingCapacity = async (req, res, next) => {
   try {
     const { eventId, quantity = 1 } = req.body;
@@ -49,7 +44,6 @@ const validateBookingCapacity = async (req, res, next) => {
   }
 };
 
-// ─── Booking Ownership Validation ─────────────────────────────────────────────
 const validateBookingOwnership = async (req, res, next) => {
   try {
     const { id } = req.params;
@@ -75,7 +69,6 @@ const validateBookingOwnership = async (req, res, next) => {
   }
 };
 
-// ─── ObjectId Param Validator ─────────────────────────────────────────────────
 const validateObjectId = (paramName = 'id') => (req, res, next) => {
   if (!mongoose.Types.ObjectId.isValid(req.params[paramName])) {
     return res.status(400).render('error', { message: `Invalid ${paramName}.` });
